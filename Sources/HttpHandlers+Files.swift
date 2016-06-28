@@ -97,13 +97,13 @@ extension HttpHandlers {
                 }
                 
                 let chunkLength = end - start
-                let chunkRange = NSRange(location: start, length: chunkLength + 1)
+                let chunkRange:Range = start..<(start + chunkLength + 1)
                 
-                guard chunkRange.location + chunkRange.length <= fileBody.count else {
+                guard chunkRange.upperBound <= fileBody.count else {
                     return HttpResponse.raw(416, "Requested range not satisfiable", nil, nil)
                 }
                 
-                let chunk = fileBody.subdata(with: chunkRange)
+                let chunk = fileBody.subdata(in: chunkRange)
                 
                 let headers = [ "Content-Range" : "bytes \(startStr)-\(endStr)/\(fileBody.count)" ]
                 

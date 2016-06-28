@@ -210,7 +210,7 @@ public class Socket: Hashable, Equatable {
         #if os(Linux)
             shutdown(socket, Int32(SHUT_RDWR))
         #else
-            Darwin.shutdown(socket, SHUT_RDWR)
+            _ = Darwin.shutdown(socket, SHUT_RDWR)
         #endif
     }
     
@@ -218,7 +218,7 @@ public class Socket: Hashable, Equatable {
         #if os(Linux)
             shutdown(socket, Int32(SHUT_RDWR))
         #else
-            Darwin.shutdown(socket, SHUT_RDWR)
+            _ = Darwin.shutdown(socket, SHUT_RDWR)
         #endif
         close(socket)
     }
