@@ -13,6 +13,9 @@
 
 public class HttpServer: HttpServerIO {
     
+    public typealias RequestFilter = (request:HttpRequest) -> HttpRequest
+    public typealias ResponseFilter = (request:HttpRequest, response:HttpResponse) -> HttpRequest
+    
     public static let VERSION = "1.2.0"
     
     private let router = HttpRouter()
@@ -47,23 +50,29 @@ public class HttpServer: HttpServerIO {
         return router.routes();
     }
     
+    public var requestFilters = Array<RequestFilter>()
+    public var responseFilters = Array<ResponseFilter>()
+    
     public var notFoundHandler: ((HttpRequest) -> HttpResponse)?
     
     public var middleware = Array<(HttpRequest) -> HttpResponse?>()
 
     override public func dispatch(_ request: HttpRequest) -> ([String:String], (HttpRequest) -> HttpResponse) {
+        
+        let filteredRequest = filterRequest(request: request)
+        
         for layer in middleware {
-            if let response = layer(request) {
+            if let response = layer(filteredRequest) {
                 return ([:], { _ in response })
             }
         }
-        if let result = router.route(request.method, path: request.path) {
+        if let result = router.route(filteredRequest.method, path: filteredRequest.path) {
             return result
         }
         if let notFoundHandler = self.notFoundHandler {
             return ([:], notFoundHandler)
         }
-        return super.dispatch(request)
+        return super.dispatch(filteredRequest)
     }
     
     public struct MethodRoute {
@@ -76,4 +85,15 @@ public class HttpServer: HttpServerIO {
             get { return nil }
         }
     }
+    
+    private func filterRequest(request:HttpRequest) -> HttpRequest {
+
+        var result = request
+        for filter in requestFilters {
+            result = filter(request: result)
+        }
+        
+        return result
+    }
 }
+

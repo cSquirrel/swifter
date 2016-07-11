@@ -480,6 +480,8 @@
 					};
 					7AE893FA1C0512C400A29F63 = {
 						CreatedOnToolsVersion = 7.1;
+						DevelopmentTeam = 32T5LEZ5QA;
+						DevelopmentTeamName = "Marcin Maciukiewicz (Personal Team)";
 					};
 					7C839B6D19422CFF003A6950 = {
 						CreatedOnToolsVersion = 6.0;
