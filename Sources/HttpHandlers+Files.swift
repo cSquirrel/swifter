@@ -37,7 +37,7 @@ extension HttpHandlers {
             return absolutePath
         }
 
-        let fm = FileManager.default()
+        let fm = FileManager.default
         let possibleIndexFiles = ["index.html", "index.htm"] // add any other files you want to check for here
         var folderPath = directoryPath
         if let fileRelativePath = fileRelativePath {
@@ -124,7 +124,7 @@ extension HttpHandlers {
                 return HttpResponse.notFound
             }
             let filePath = dir + "/" + value
-            let fileManager = FileManager.default()
+            let fileManager = FileManager.default
             var isDir: ObjCBool = false
             guard fileManager.fileExists(atPath: filePath, isDirectory: &isDir) else {
                 return HttpResponse.notFound
