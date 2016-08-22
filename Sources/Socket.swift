@@ -13,7 +13,7 @@
 
 /* Low level routines for POSIX sockets */
 
-public enum SocketError: ErrorProtocol {
+public enum SocketError: Error {
     case socketCreationFailed(String)
     case socketSettingReUseAddrFailed(String)
     case bindFailed(String)
@@ -41,7 +41,7 @@ public class Socket: Hashable, Equatable {
         }
         
         var value: Int32 = 1
-        if setsockopt(socketFileDescriptor, SOL_SOCKET, SO_REUSEADDR, &value, socklen_t(sizeof(Int32))) == -1 {
+        if setsockopt(socketFileDescriptor, SOL_SOCKET, SO_REUSEADDR, &value, socklen_t(MemoryLayout<Int32>.size)) == -1 {
             let details = Socket.descriptionOfLastError()
             Socket.release(socketFileDescriptor)
             throw SocketError.socketSettingReUseAddrFailed(details)
@@ -69,22 +69,22 @@ public class Socket: Hashable, Equatable {
         #else
             var bindResult: Int32 = -1
             if forceIPv4 {
-                var addr = sockaddr_in(sin_len: UInt8(strideof(sockaddr_in)),
+                var addr = sockaddr_in(sin_len: UInt8(MemoryLayout<sockaddr_in>.stride),
                     sin_family: UInt8(AF_INET),
                     sin_port: Socket.htonsPort(port),
                     sin_addr: in_addr(s_addr: in_addr_t(0)),
                     sin_zero:(0, 0, 0, 0, 0, 0, 0, 0))
              
-                bindResult = withUnsafePointer(&addr) { bind(socketFileDescriptor, UnsafePointer<sockaddr>($0), socklen_t(sizeof(sockaddr_in))) }
+                bindResult = withUnsafePointer(to: &addr) { bind(socketFileDescriptor, UnsafePointer<sockaddr>($0), socklen_t(MemoryLayout<sockaddr_in>.size)) }
             } else {
-                var addr = sockaddr_in6(sin6_len: UInt8(strideof(sockaddr_in6)),
+                var addr = sockaddr_in6(sin6_len: UInt8(MemoryLayout<sockaddr_in6>.stride),
                     sin6_family: UInt8(AF_INET6),
                     sin6_port: Socket.htonsPort(port),
                     sin6_flowinfo: 0,
                     sin6_addr: in6addr_any,
                     sin6_scope_id: 0)
                 
-                bindResult = withUnsafePointer(&addr) { bind(socketFileDescriptor, UnsafePointer<sockaddr>($0), socklen_t(sizeof(sockaddr_in6))) }
+                bindResult = withUnsafePointer(to: &addr) { bind(socketFileDescriptor, UnsafePointer<sockaddr>($0), socklen_t(MemoryLayout<sockaddr_in6>.size)) }
             }
         #endif
 
@@ -177,7 +177,7 @@ public class Socket: Hashable, Equatable {
     }
     
     public func peername() throws -> String {
-        var addr = sockaddr(), len: socklen_t = socklen_t(sizeof(sockaddr))
+        var addr = sockaddr(), len: socklen_t = socklen_t(MemoryLayout<sockaddr>.size)
         if getpeername(self.socketFileDescriptor, &addr, &len) != 0 {
             throw SocketError.getPeerNameFailed(Socket.descriptionOfLastError())
         }
@@ -202,7 +202,7 @@ public class Socket: Hashable, Equatable {
         #else
             // Prevents crashes when blocking calls are pending and the app is paused ( via Home button ).
             var no_sig_pipe: Int32 = 1
-            setsockopt(socket, SOL_SOCKET, SO_NOSIGPIPE, &no_sig_pipe, socklen_t(sizeof(Int32)))
+            setsockopt(socket, SOL_SOCKET, SO_NOSIGPIPE, &no_sig_pipe, socklen_t(MemoryLayout<Int32>.size))
         #endif
     }
     

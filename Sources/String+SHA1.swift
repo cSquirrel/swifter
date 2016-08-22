@@ -47,7 +47,7 @@ extension String {
         // append ml, in a 64-bit big-endian integer. Thus, the total length is a multiple of 512 bits.
         
         var mlBigEndian = ml.bigEndian
-        let bytePtr = withUnsafePointer(&mlBigEndian) { UnsafeBufferPointer<UInt8>(start: UnsafePointer($0), count: sizeofValue(mlBigEndian)) }
+        let bytePtr = withUnsafePointer(to: &mlBigEndian) { UnsafeBufferPointer<UInt8>(start: UnsafePointer($0), count: MemoryLayout<UInt64>.size) }
         
         message.append(contentsOf: Array(bytePtr))
         

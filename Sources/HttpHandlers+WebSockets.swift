@@ -46,7 +46,7 @@ extension HttpHandlers {
     
     public class WebSocketSession {
         
-        public enum Error: ErrorProtocol { case unknownOpCode(String), unMaskedFrame }
+        public enum WebSocketError: Error { case unknownOpCode(String), unMaskedFrame }
         public enum OpCode { case `continue`, close, ping, pong, text, binary }
         
         public class Frame {
@@ -136,14 +136,14 @@ extension HttpHandlers {
                 case 0x0A: frm.opcode = OpCode.pong
                 // "If an unknown opcode is received, the receiving endpoint MUST _Fail the WebSocket Connection_."
                 // http://tools.ietf.org/html/rfc6455#section-5.2 ( Page 29 )
-                default  : throw Error.unknownOpCode("\(opc)")
+                default  : throw WebSocketError.unknownOpCode("\(opc)")
             }
             let sec = try socket.read()
             let msk = sec & 0x80 != 0
             guard msk else {
                 // "...a client MUST mask all frames that it sends to the serve.."
                 // http://tools.ietf.org/html/rfc6455#section-5.1
-                throw Error.unMaskedFrame
+                throw WebSocketError.unMaskedFrame
             }
             var len = UInt64(sec & 0x7F)
             if len == 0x7E {

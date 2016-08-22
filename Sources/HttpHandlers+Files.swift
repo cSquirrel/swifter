@@ -20,7 +20,7 @@ extension HttpHandlers {
             }
             return .raw(200, "OK", [:], { writer in
                 var buffer = [UInt8](repeating: 0, count: 64)
-                while let count = try? file.read(&buffer) where count > 0 {
+                while let count = try? file.read(&buffer) , count > 0 {
                     writer.write(buffer[0 ..< count])
                 }
                 file.close()
@@ -90,7 +90,7 @@ extension HttpHandlers {
                 let startStr = rangeStringExploded[0]
                 let endStr   = rangeStringExploded[1]
                 
-                guard let start = Int(startStr), end = Int(endStr) else {
+                guard let start = Int(startStr), let end = Int(endStr) else {
                     var array = [UInt8](repeating: 0, count: fileBody.count)
                     (fileBody as NSData).getBytes(&array, length: fileBody.count)
                     return HttpResponse.raw(200, "OK", nil, { $0.write(array) })
@@ -129,7 +129,7 @@ extension HttpHandlers {
             guard fileManager.fileExists(atPath: filePath, isDirectory: &isDir) else {
                 return HttpResponse.notFound
             }
-            if isDir {
+            if isDir.boolValue {
                 do {
                     let files = try fileManager.contentsOfDirectory(atPath: filePath)
                     var response = "<h3>\(filePath)</h3></br><table>"

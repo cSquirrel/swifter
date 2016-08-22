@@ -11,7 +11,7 @@
     import Foundation
 #endif
 
-enum HttpParserError: ErrorProtocol {
+enum HttpParserError: Error {
     case invalidStatusLine(String)
 }
 
@@ -42,7 +42,7 @@ public class HttpParser {
         }
         return query.split("&").reduce([(String, String)]()) { (c, s) -> [(String, String)] in
             let tokens = s.split(1, separator: "=")
-            if let name = tokens.first, value = tokens.last {
+            if let name = tokens.first, let value = tokens.last {
                 return c + [(name.removePercentEncoding(), value.removePercentEncoding())]
             }
             return c
@@ -63,7 +63,7 @@ public class HttpParser {
                 return headers
             }
             let headerTokens = headerLine.split(1, separator: ":")
-            if let name = headerTokens.first, value = headerTokens.last {
+            if let name = headerTokens.first, let value = headerTokens.last {
                 headers[name.lowercased()] = value.trim()
             }
         } while true
