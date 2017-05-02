@@ -113,7 +113,7 @@ public enum HttpResponse {
         }
     }
     
-    func headers() -> [String: String] {
+    public func headers() -> [String: String] {
         var headers = ["Server" : "Swifter \(HttpServer.VERSION)"]
         switch self {
         case .switchProtocols(let switchHeaders, _):
@@ -139,7 +139,7 @@ public enum HttpResponse {
         return headers
     }
     
-    func content() -> (length: Int, write: ((HttpResponseBodyWriter) throws -> Void)?) {
+    public func content() -> (length: Int, write: ((HttpResponseBodyWriter) throws -> Void)?) {
         switch self {
         case .ok(let body)             : return body.content()
         case .badRequest(let body)     : return body?.content() ?? (-1, nil)
