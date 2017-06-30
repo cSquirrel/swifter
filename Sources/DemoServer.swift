@@ -36,7 +36,7 @@ public func demoServer(_ publicDir: String) -> HttpServer {
         scopes {
             html {
                 body {
-                    h3 { inner = "Address: \(r.address)" }
+                    h3 { inner = "Address: \(String(describing: r.address))" }
                     h3 { inner = "Url: \(r.path)" }
                     h3 { inner = "Method: \(r.method)" }
                     
@@ -95,7 +95,7 @@ public func demoServer(_ publicDir: String) -> HttpServer {
     server.POST["/upload"] = { r in
         var response = ""
         for multipart in r.parseMultiPartFormData() {
-            response += "Name: \(multipart.name) File name: \(multipart.fileName) Size: \(multipart.body.count)<br>"
+            response += "Name: \(String(describing: multipart.name)) File name: \(String(describing: multipart.fileName)) Size: \(multipart.body.count)<br>"
         }
         return HttpResponse.ok(.html(response))
     }
@@ -186,7 +186,7 @@ public func demoServer(_ publicDir: String) -> HttpServer {
     }
     
     server.middleware.append { r in
-        print("Middleware: \(r.address) -> \(r.method) -> \(r.path)")
+        print("Middleware: \(String(describing: r.address)) -> \(r.method) -> \(r.path)")
         return nil
     }
     
